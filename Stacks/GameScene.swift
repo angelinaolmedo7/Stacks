@@ -8,102 +8,107 @@
 import SpriteKit
 import GameplayKit
 
+struct PhysicsCategory {
+    static let None: UInt32 = 0
+    static let Player: UInt32 = 0b1
+    static let Obstacle: UInt32 = 0b10
+    static let PlayerBody: UInt32 = 0b100
+    static let Barrier: UInt32 = 0b1000
+}
+
 class GameScene: SKScene {
     
-    var entities = [GKEntity]()
-    var graphs = [String : GKGraph]()
-    
-    private var lastUpdateTime : TimeInterval = 0
-    private var label : SKLabelNode?
-    private var spinnyNode : SKShapeNode?
+    let fixedDelta: CFTimeInterval = 1.0 / 60.0 /* 60 FPS */
+    let scrollSpeed: CGFloat = 200
+    var scrollNode: SKNode!
+    var cloudScroll: SKNode!
+    var player: SKSpriteNode!
+    var obstacleSpawner: SKNode!
+    var playButton: CustomButtonNode!
+    var frontBarrier: SKSpriteNode!
     
     override func sceneDidLoad() {
+        super.sceneDidLoad()
+        
+        /* Set references to scroll nodes */
+        if let scrollNode = self.childNode(withName: "scrollNode") {
+            self.scrollNode = scrollNode
+        } else {
+            print("scrollNode could not be connected properly")
+        }
+        if let cloudScroll = self.childNode(withName: "cloudScroll") {
+            self.cloudScroll = cloudScroll
+        } else {
+            print("cloudScroll could not be connected properly")
+        }
+        
+        // referecing the barrier node from the scene
+        if let frontBarrier = self.childNode(withName: "frontBarrier") as? SKSpriteNode {
+          self.frontBarrier = frontBarrier
+        } else {
+          print("frontBarrier could not be connected properly")
+        }
+        
+        if let playButton = self.childNode(withName: "playButton") as? CustomButtonNode {
+          self.playButton = playButton
+        } else {
+          print("playButton was not initialized properly")
+        }
 
-        self.lastUpdateTime = 0
-        
-        // Get label node from scene and store it for use later
-        self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
-        if let label = self.label {
-            label.alpha = 0.0
-            label.run(SKAction.fadeIn(withDuration: 2.0))
-        }
-        
-        // Create shape node to use during mouse interaction
-        let w = (self.size.width + self.size.height) * 0.05
-        self.spinnyNode = SKShapeNode.init(rectOf: CGSize.init(width: w, height: w), cornerRadius: w * 0.3)
-        
-        if let spinnyNode = self.spinnyNode {
-            spinnyNode.lineWidth = 2.5
-            
-            spinnyNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 1)))
-            spinnyNode.run(SKAction.sequence([SKAction.wait(forDuration: 0.5),
-                                              SKAction.fadeOut(withDuration: 0.5),
-                                              SKAction.removeFromParent()]))
-        }
-    }
-    
-    
-    func touchDown(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.green
-            self.addChild(n)
-        }
-    }
-    
-    func touchMoved(toPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.blue
-            self.addChild(n)
-        }
-    }
-    
-    func touchUp(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.red
-            self.addChild(n)
-        }
+        // setting the barrier physics body preferences
+        frontBarrier.physicsBody?.categoryBitMask = PhysicsCategory.Barrier
+        frontBarrier.physicsBody?.collisionBitMask = PhysicsCategory.None
+        frontBarrier.physicsBody?.contactTestBitMask = PhysicsCategory.Obstacle
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let label = self.label {
-            label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
-        }
         
-        for t in touches { self.touchDown(atPoint: t.location(in: self)) }
     }
-    
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchMoved(toPoint: t.location(in: self)) }
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
-    }
-    
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
-    }
-    
     
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
+        super.update(currentTime)
         
-        // Initialize _lastUpdateTime if it has not already been
-        if (self.lastUpdateTime == 0) {
-            self.lastUpdateTime = currentTime
+        /* Process world scrolling */
+        scrollWorld()
+    }
+    
+    func scrollWorld() {
+        /* Scroll World */
+        scrollNode.position.x -= scrollSpeed * CGFloat(fixedDelta)
+        cloudScroll.position.x -= (scrollSpeed/2) * CGFloat(fixedDelta)
+        
+        /* Loop through scroll layer nodes */
+        for ground in scrollNode.children as! [SKSpriteNode] {
+
+            /* Get ground node position, convert node position to scene space */
+            let groundPosition = scrollNode.convert(ground.position, to: self)
+
+            /* Check if ground sprite has left the scene */
+            if groundPosition.x <= -ground.size.width / 2 {
+
+                /* Reposition ground sprite to the second starting position */
+                let newPosition = CGPoint(x: (self.size.width / 2) + ground.size.width, y: groundPosition.y)
+
+                /* Convert new node position back to scroll layer space */
+                ground.position = self.convert(newPosition, to: scrollNode)
+            }
         }
         
-        // Calculate time since last update
-        let dt = currentTime - self.lastUpdateTime
-        
-        // Update entities
-        for entity in self.entities {
-            entity.update(deltaTime: dt)
+        /* Loop through cloud scroll layer nodes */
+        for cloud in cloudScroll.children as! [SKSpriteNode] {
+
+            /* Get cloud node position, convert node position to scene space */
+            let cloudPosition = cloudScroll.convert(cloud.position, to: self)
+
+            /* Check if cloud sprite has left the scene */
+            if cloudPosition.x <= -cloud.size.width / 2 {
+
+                /* Reposition cloud sprite to the second starting position */
+                let newPosition = CGPoint(x: (self.size.width / 2) + cloud.size.width, y: cloudPosition.y)
+
+                /* Convert new node position back to scroll layer space */
+                cloud.position = self.convert(newPosition, to: scrollNode)
+            }
         }
-        
-        self.lastUpdateTime = currentTime
     }
 }
