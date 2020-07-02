@@ -23,7 +23,7 @@ class GameScene: SKScene {
     var scrollNode: SKNode!
     var cloudScroll: SKNode!
     var player: SKSpriteNode!
-    var obstacleSpawner: SKNode!
+    var obstacleSpawner: ObstacleSpawner!
     var playButton: CustomButtonNode!
     var frontBarrier: SKSpriteNode!
     
@@ -44,15 +44,21 @@ class GameScene: SKScene {
         
         // referecing the barrier node from the scene
         if let frontBarrier = self.childNode(withName: "frontBarrier") as? SKSpriteNode {
-          self.frontBarrier = frontBarrier
+            self.frontBarrier = frontBarrier
         } else {
-          print("frontBarrier could not be connected properly")
+            print("frontBarrier could not be connected properly")
         }
         
         if let playButton = self.childNode(withName: "playButton") as? CustomButtonNode {
-          self.playButton = playButton
+            self.playButton = playButton
         } else {
-          print("playButton was not initialized properly")
+            print("playButton was not initialized properly")
+        }
+        
+        if let spawner = self.childNode(withName: "obstacleSpawner") as? ObstacleSpawner {
+            self.obstacleSpawner = spawner
+        } else {
+            print("spawner could not be connected properly")
         }
 
         // setting the barrier physics body preferences
@@ -70,6 +76,7 @@ class GameScene: SKScene {
         
         /* Process world scrolling */
         scrollWorld()
+        
     }
     
     func scrollWorld() {

@@ -19,6 +19,7 @@
 		2989F78724ACE22500279F04 /* StacksUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2989F78624ACE22500279F04 /* StacksUITests.swift */; };
 		2989F7BC24AE209B00279F04 /* CustomButtonNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2989F7BB24AE209B00279F04 /* CustomButtonNode.swift */; };
 		2989F7BE24AE246300279F04 /* Schemes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2989F7BD24AE246300279F04 /* Schemes.swift */; };
+		2989F7C024AE254C00279F04 /* ObstacleSpawner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2989F7BF24AE254C00279F04 /* ObstacleSpawner.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 		2989F78824ACE22500279F04 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2989F7BB24AE209B00279F04 /* CustomButtonNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButtonNode.swift; sourceTree = "<group>"; };
 		2989F7BD24AE246300279F04 /* Schemes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Schemes.swift; sourceTree = "<group>"; };
+		2989F7BF24AE254C00279F04 /* ObstacleSpawner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObstacleSpawner.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +115,7 @@
 				2989F76624ACE22000279F04 /* GameScene.swift */,
 				2989F7BD24AE246300279F04 /* Schemes.swift */,
 				2989F7BB24AE209B00279F04 /* CustomButtonNode.swift */,
+				2989F7BF24AE254C00279F04 /* ObstacleSpawner.swift */,
 				2989F76824ACE22000279F04 /* GameViewController.swift */,
 				2989F76A24ACE22000279F04 /* Main.storyboard */,
 				2989F76D24ACE22400279F04 /* Assets.xcassets */,
@@ -275,6 +278,7 @@
 				2989F76724ACE22000279F04 /* GameScene.swift in Sources */,
 				2989F76924ACE22000279F04 /* GameViewController.swift in Sources */,
 				2989F7BC24AE209B00279F04 /* CustomButtonNode.swift in Sources */,
+				2989F7C024AE254C00279F04 /* ObstacleSpawner.swift in Sources */,
 				2989F76124ACE22000279F04 /* AppDelegate.swift in Sources */,
 				2989F7BE24AE246300279F04 /* Schemes.swift in Sources */,
 			);
